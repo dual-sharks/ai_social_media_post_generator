@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "social-media"
+version = "0.1.0"
+description = ""
+authors = ["ktric-cloud <kerim.tricic@dualsharks.com>"]
+readme = "README.md"
+packages = [{include = "social_media"}]
+
+[tool.poetry.dependencies]
+python = "3.12.7"
+crewai = "^0.86.0"
+python-dotenv = "^1.0.1"
+langchain-community = "^0.3.10"
+linkedin-api = "^2.3.1"
+selenium = "^4.27.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

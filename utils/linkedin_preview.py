@@ -55,10 +55,18 @@ class LinkedInPreviewGenerator:
         with open(image_path, 'rb') as img_file:
             return base64.b64encode(img_file.read()).decode('utf-8')
 
-    def generate_preview(self, content: str) -> str:
+    def generate_preview(self, content: str, image_paths: List[str] = None) -> str:
         """Generate a LinkedIn-style preview of the content."""
+        images = []
+        if image_paths:
+            for path in image_paths:
+                if os.path.exists(path):
+                    img_type = path.split('.')[-1].lower()
+                    b64_img = self._get_image_base64(path)
+                    images.append(f"data:image/{img_type};base64,{b64_img}")
+
         html = f"""
-            <div style="max-width: 552px; margin: 20px auto; height: 600px; overflow-y: auto;">
+            <div style="max-width: 800px; margin: 20px auto; height: 1000px; overflow-y: auto;">
                 <div style="font-family: -apple-system,system-ui,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif; border: 1px solid #e0e0e0; border-radius: 8px; background: white; padding: 12px;">
                     <!-- Profile Header -->
                     <div style="display: flex; align-items: center; margin-bottom: 12px;">
@@ -72,6 +80,9 @@ class LinkedInPreviewGenerator:
                     <!-- Post Content -->
                     <div style="color: rgba(0,0,0,0.9); font-size: 14px; margin: 12px 0; white-space: pre-wrap;">{content}</div>
                     
+                    <!-- Images -->
+                    {self._render_images(images) if images else ''}
+                    
                     <!-- Interaction Buttons -->
                     <div style="display: flex; justify-content: space-around; margin-top: 12px; padding-top: 12px; border-top: 1px solid #e0e0e0;">
                         <div style="color: rgba(0,0,0,0.6); font-size: 14px;">👍 Like</div>
@@ -82,6 +93,18 @@ class LinkedInPreviewGenerator:
             </div>
             """
         return html
+
+    def _render_images(self, images: List[str]) -> str:
+        """Render images in the preview."""
+        if not images:
+            return ''
+        if len(images) == 1:
+            return f'<img src="{images[0]}" style="width: 100%; max-height: 400px; object-fit: cover;">'
+        return f'''
+            <div style="display: grid; grid-template-columns: repeat({min(len(images), 2)}, 1fr); gap: 2px;">
+                {''.join(f'<img src="{img}" style="width: 100%; height: 250px; object-fit: cover;">' for img in images)}
+            </div>
+        '''
     
     def save_preview_as_png(self, text: str, image_paths: List[str], output_path: str) -> str:
         """

@@ -55,23 +55,33 @@ class LinkedInPreviewGenerator:
         with open(image_path, 'rb') as img_file:
             return base64.b64encode(img_file.read()).decode('utf-8')
 
-    def generate_preview(self, text: str, image_paths: List[str] = None) -> None:
-        images = []
-        if image_paths:
-            for path in image_paths:
-                if os.path.exists(path):
-                    img_type = path.split('.')[-1].lower()
-                    b64_img = self._get_image_base64(path)
-                    images.append(f"data:image/{img_type};base64,{b64_img}")
-
-        timestamp = datetime.now().strftime("%b %d, %Y")
-        html = self.template.render(
-            text=text,
-            images=images,
-            timestamp=timestamp
-        )
-        
-        display(HTML(html))
+    def generate_preview(self, content: str) -> str:
+        """Generate a LinkedIn-style preview of the content."""
+        html = f"""
+            <div style="max-width: 552px; margin: 20px auto; height: 600px; overflow-y: auto;">
+                <div style="font-family: -apple-system,system-ui,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif; border: 1px solid #e0e0e0; border-radius: 8px; background: white; padding: 12px;">
+                    <!-- Profile Header -->
+                    <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                        <div style="width: 48px; height: 48px; border-radius: 50%; background: #0a66c2; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">DS</div>
+                        <div style="margin-left: 8px;">
+                            <div style="font-weight: 600; color: rgba(0,0,0,0.9);">DualSharks</div>
+                            <div style="font-size: 14px; color: rgba(0,0,0,0.6);">Dec 18, 2024</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Post Content -->
+                    <div style="color: rgba(0,0,0,0.9); font-size: 14px; margin: 12px 0; white-space: pre-wrap;">{content}</div>
+                    
+                    <!-- Interaction Buttons -->
+                    <div style="display: flex; justify-content: space-around; margin-top: 12px; padding-top: 12px; border-top: 1px solid #e0e0e0;">
+                        <div style="color: rgba(0,0,0,0.6); font-size: 14px;">👍 Like</div>
+                        <div style="color: rgba(0,0,0,0.6); font-size: 14px;">💬 Comment</div>
+                        <div style="color: rgba(0,0,0,0.6); font-size: 14px;">↗️ Share</div>
+                    </div>
+                </div>
+            </div>
+            """
+        return html
     
     def save_preview_as_png(self, text: str, image_paths: List[str], output_path: str) -> str:
         """
